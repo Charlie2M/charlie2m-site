@@ -5,14 +5,23 @@
     linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px),
     linear-gradient(rgba(108, 184, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(108, 184, 255, 0.05) 1px, transparent 1px);
   background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
-  mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 85%);
+  /* Only a soft vignette at the very edges, so cards never sit "off the grid" */
+  mask-image: radial-gradient(ellipse 120% 110% at 50% 50%, #000 60%, transparent 100%);
 }
 .bp-head { padding-top: clamp(140px, 18vw, 200px); display: grid; gap: 18px; }
 .bp-title { font-size: clamp(52px, 10vw, 140px); letter-spacing: -0.045em; line-height: 0.9; }
-.bp-flow { width: 100%; height: 70px; margin-top: 30px; overflow: visible; }
-.bp-flow path { fill: none; stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-.bp-flow circle { fill: var(--bg); stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
-.bp-flow text { font-family: var(--font-mono); font-size: 13px; fill: var(--muted); }
+/* Roadmap line: one step per lane, the segment runs from each dot to the next one */
+.bp-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 34px; }
+.bp-flow__step { position: relative; display: grid; gap: 10px; justify-items: start; }
+.bp-flow__dot { position: relative; z-index: 1; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); }
+.bp-flow__seg { position: absolute; top: 6px; left: 14px; right: -20px; height: 2px; background: var(--accent); transform-origin: 0 50%; }
+.bp-flow__step:last-child .bp-flow__seg { right: 4px; }
+.bp-flow__step:last-child .bp-flow__seg::after {
+  content: ''; position: absolute; right: -2px; top: -5px; width: 10px; height: 10px;
+  border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); transform: rotate(45deg);
+}
+.bp-flow__step:last-child .bp-flow__dot { border-color: var(--accent-2); background: var(--accent-2); }
+.bp-flow__label { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
 .bp-board { perspective: 1200px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding: 50px 0 40px; align-items: start; }
 .bp-lane { display: grid; gap: 14px; }
 .bp-lane__title { font-family: var(--font-mono); font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px dashed var(--line-2); }

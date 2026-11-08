@@ -27,16 +27,16 @@ const sketches = [
     <span class="endpoint" data-reveal><span class="verb">GET</span>{f.eyebrow}</span>
     <h1 class="bp-title" data-split="manual">{f.title}</h1>
     <p class="sec-lead" data-reveal>{f.intro}</p>
-    <svg class="bp-flow" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
-      <path data-draw d="M10 30 H 980" />
-      <path data-draw d="M965 18 L 985 30 L 965 42" />
-      {lanes.map((l, i) => (
-        <g>
-          <circle cx={10 + i * 485} cy="30" r="6" data-dot />
-          <text x={10 + i * 485} y="58" text-anchor={i === 0 ? 'start' : i === 2 ? 'end' : 'middle'}>{f.lanes[l]}</text>
-        </g>
+    <!-- Same 3 columns as the board below, so each stop sits above its lane -->
+    <div class="bp-flow" aria-hidden="true">
+      {lanes.map((l) => (
+        <div class="bp-flow__step">
+          <span class="bp-flow__seg" data-seg></span>
+          <span class="bp-flow__dot" data-dot></span>
+          <span class="bp-flow__label">{f.lanes[l]}</span>
+        </div>
       ))}
-    </svg>
+    </div>
   </section>
 
   <section class="bp-board wrap" aria-label={f.title}>

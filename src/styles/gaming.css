@@ -118,9 +118,14 @@ body[data-theme='gaming'] {
 .art--genshin { background: linear-gradient(180deg, #6fb7f5 0%, #b8d9f2 50%, #ffd8a8 100%); }
 .art--genshin::before { background: radial-gradient(ellipse 40% 18% at 25% 70%, rgba(255,255,255,.85), transparent 70%), radial-gradient(ellipse 35% 14% at 75% 80%, rgba(255,255,255,.75), transparent 70%); }
 .art--genshin::after { background-image: radial-gradient(circle, rgba(255,255,255,.9) 1px, transparent 1.6px); background-size: 34px 30px; mask-image: linear-gradient(180deg, #000, transparent 50%); }
-.art--p5r { background: #0b0b0b; }
-.art--p5r::before { background-image: radial-gradient(circle, rgba(196,0,31,.55) 2px, transparent 2.5px); background-size: 10px 10px; mask-image: linear-gradient(110deg, transparent 30%, #000 75%); }
-.art--p5r::after { background: #c4001f; clip-path: polygon(0 72%, 100% 44%, 100% 56%, 0 84%); opacity: 0.85; }
+/* Calling-card look: red base, black slab, white halftone; the hat gets a white sticker outline */
+.art--p5r { background: #d1081f; }
+.art--p5r::before { background: #0b0b0b; clip-path: polygon(58% 0, 100% 0, 100% 100%, 30% 100%); }
+.art--p5r::after { background-image: radial-gradient(circle, rgba(255,255,255,.5) 1.6px, transparent 2.2px); background-size: 9px 9px; mask-image: linear-gradient(120deg, #000 0%, transparent 45%); }
+.art--p5r .gx-img--logo {
+  inset: 10% 18%; width: 64%; height: 80%; rotate: -8deg;
+  filter: drop-shadow(2.5px 0 0 #fff) drop-shadow(-2.5px 0 0 #fff) drop-shadow(0 2.5px 0 #fff) drop-shadow(0 -2.5px 0 #fff) drop-shadow(6px 8px 0 rgba(0, 0, 0, 0.85));
+}
 
 /* Game images on top of the colour backgrounds */
 .gx-art.has-img::before, .gx-art.has-img::after { z-index: 0; }
