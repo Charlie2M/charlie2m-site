@@ -1,0 +1,34 @@
+---
+import VoxelArt from './VoxelArt.astro';
+import { ACHIEVEMENTS } from '../data/achievements';
+import { t, type Lang } from '../i18n';
+const d = t(Astro.props.lang as Lang).eggs;
+---
+
+<div class="ach-toast" role="status" aria-live="polite" data-ach-toast>
+  <span class="ach-toast__icon"><VoxelArt mode="mark" /></span>
+  <span><small>{d.unlocked}</small><strong data-ach-toast-name></strong></span>
+</div>
+
+<dialog class="ach-panel" data-ach-panel aria-labelledby="ach-title">
+  <div class="ach-panel__head">
+    <div>
+      <h2 id="ach-title">{d.title}</h2>
+      <p class="ach-panel__count"><span data-ach-count>0/{ACHIEVEMENTS.length}</span> {d.progress}</p>
+    </div>
+    <button class="btn btn--sm" type="button" data-ach-close>{d.close}</button>
+  </div>
+  <div class="ach-panel__bar" data-ach-bar><i></i></div>
+  <ul class="ach-list">
+    {ACHIEVEMENTS.map((id) => (
+      <li class="ach" data-ach-id={id}>
+        <span class="ach__badge" aria-hidden="true"></span>
+        <span>
+          <strong data-ach-name>{d.items[id].name}</strong>
+          <small>{d.items[id].hint}</small>
+        </span>
+        <span class="ach__state"><span class="ach__locked">{d.locked}</span><span class="ach__done">✓</span></span>
+      </li>
+    ))}
+  </ul>
+</dialog>

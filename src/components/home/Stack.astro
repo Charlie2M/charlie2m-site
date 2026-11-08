@@ -1,8 +1,15 @@
 ---
-import { stackNodes, stackEdges, type Group } from '../../data/profile';
+import { stackNodes, type Group } from '../../data/profile';
 import { t, type Lang } from '../../i18n';
 const d = t(Astro.props.lang as Lang);
-const groups: Group[] = ['lang', 'fw', 'data', 'qa', 'tools'];
+const L = d.stack.layers;
+// Top-to-bottom order a request travels through. Quality runs alongside all of them.
+const layers: { group: Group; key: keyof typeof L }[] = [
+  { group: 'fw', key: 'api' },
+  { group: 'lang', key: 'lang' },
+  { group: 'data', key: 'data' },
+  { group: 'tools', key: 'tools' },
+];
 ---
 
 <section class="section" id="stack" aria-labelledby="stack-title">
@@ -13,38 +20,60 @@ const groups: Group[] = ['lang', 'fw', 'data', 'qa', 'tools'];
       <p class="sec-lead" data-reveal>{d.stack.lead}</p>
     </div>
     <div class="stack__grid">
-      <div class="graph" data-graph data-edges={JSON.stringify(stackEdges)} data-reveal>
-        <div class="graph__bg"></div>
-        <svg class="edges" aria-hidden="true" data-edges-svg></svg>
-        <div class="graph__cols">
-          {groups.map((g) => (
-            <div class="graph__col">
-              <span class="graph__label">{d.stack.groups[g]}</span>
-              <div class="graph__nodes">
-              {stackNodes.filter((n) => n.group === g).map((n) => (
-                <button
-                  class="node"
-                  type="button"
-                  data-node={n.id}
-                  data-name={n.name}
-                  data-detail={n.detail}
-                  data-used={JSON.stringify(n.usedIn)}
-                  aria-pressed="false"
-                >
-                  {n.name}
-                </button>
-              ))}
+      <div class="sys" data-sys data-reveal>
+        <div class="sys__track" aria-hidden="true">
+          <span class="sys__tag sys__tag--in">{d.stack.request} ↓</span>
+          <i class="sys__line"></i>
+          <i class="sys__packet" data-packet></i>
+          <span class="sys__tag sys__tag--out">↑ {d.stack.response}</span>
+        </div>
+        <ol class="sys__layers">
+          {layers.map((l, i) => (
+            <li class="layer" data-layer>
+              <div class="layer__head">
+                <span class="layer__num">0{i + 1}</span>
+                <div>
+                  <h3 class="layer__title">{L[l.key].title}</h3>
+                  <p class="layer__cap">{L[l.key].caption}</p>
+                </div>
+                <span class="layer__check" aria-hidden="true">✓</span>
               </div>
-            </div>
+              <div class="layer__chips">
+                {stackNodes.filter((n) => n.group === l.group).map((n) => (
+                  <button class="node" type="button" data-node={n.id} data-name={n.name} data-detail={n.detail} data-used={JSON.stringify(n.usedIn)} aria-pressed="false">
+                    {n.name}
+                  </button>
+                ))}
+              </div>
+            </li>
           ))}
+        </ol>
+        <div class="sys__qa">
+          <div class="layer__head">
+            <span class="layer__num">QA</span>
+            <div>
+              <h3 class="layer__title">{L.qa.title}</h3>
+              <p class="layer__cap">{L.qa.caption}</p>
+            </div>
+          </div>
+          <div class="layer__chips layer__chips--col">
+            {stackNodes.filter((n) => n.group === 'qa').map((n) => (
+              <button class="node" type="button" data-node={n.id} data-name={n.name} data-detail={n.detail} data-used={JSON.stringify(n.usedIn)} aria-pressed="false">
+                {n.name}
+              </button>
+            ))}
+          </div>
+          <div class="sys__qa-ticks" aria-hidden="true">
+            {layers.map(() => <i data-tick></i>)}
+          </div>
         </div>
       </div>
       <aside class="inspector">
         <div class="panel" aria-live="polite" data-reveal>
           <div class="inspector__name" data-insp-name>{d.stack.hint}</div>
-          <div class="inspector__detail" data-insp-detail>—</div>
-          <div class="inspector__k">{d.stack.usedIn}</div>
-          <div class="inspector__used" data-insp-used><span class="chip">—</span></div>
+          <div class="inspector__detail" data-insp-detail>{d.stack.hintBody}</div>
+          <div class="inspector__k" data-insp-k hidden>{d.stack.usedIn}</div>
+          <div class="inspector__used" data-insp-used></div>
         </div>
         <div class="panel" data-reveal>
           <div class="graph__label">{d.stack.humanTitle}</div>

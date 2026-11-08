@@ -1,4 +1,5 @@
 import { gsap, ScrollTrigger, reduced, finePointer, revealSplit, tilt, lenis } from './core';
+import { unlock } from './achievements';
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string, root: ParentNode = document) => root.querySelector<T>(sel);
 const $$ = <T extends HTMLElement = HTMLElement>(sel: string, root: ParentNode = document) => Array.from(root.querySelectorAll<T>(sel));
@@ -6,6 +7,7 @@ const $$ = <T extends HTMLElement = HTMLElement>(sel: string, root: ParentNode =
 export async function initHome() {
   packets();
   greetings();
+  miner();
   story();
   stackGraph();
   projects();
@@ -56,12 +58,42 @@ function heroIntro() {
       },
     });
   }
-  // Tap the avatar on touch devices to burst it.
-  const av = $('[data-avatar]');
-  av?.addEventListener('click', () => av.classList.toggle('is-burst'));
   // Parallax on scroll
   gsap.to('.hero__art', { yPercent: 25, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
   gsap.to('.hero__text', { yPercent: 12, opacity: 0.2, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+}
+
+/** Easter egg: hit the voxel cube 5 times and the floating block breaks apart. */
+function miner() {
+  const av = $('[data-avatar]');
+  const block = av?.querySelector<SVGGElement>('.is-float');
+  if (!av || !block) return;
+  let hits = 0;
+  av.addEventListener('click', () => {
+    hits++;
+    if (!reduced) gsap.fromTo(av, { rotate: -3 }, { rotate: 0, duration: 0.4, ease: 'elastic.out(1, 0.3)' });
+    if (hits < 5) return;
+    hits = 0;
+    unlock('miner');
+    if (reduced) return;
+    // Spawn block "fragments" at the floating block's position, then respawn the block.
+    const r = block.getBoundingClientRect();
+    const cs = getComputedStyle(document.body);
+    const colors = [cs.getPropertyValue('--vx-a-top'), cs.getPropertyValue('--vx-a-left'), cs.getPropertyValue('--vx-a-right')];
+    for (let i = 0; i < 14; i++) {
+      const f = document.createElement('div');
+      f.className = 'confetti';
+      Object.assign(f.style, { left: `${r.left + r.width / 2}px`, top: `${r.top + r.height / 2}px`, width: '9px', height: '9px', background: colors[i % 3].trim() });
+      document.body.append(f);
+      gsap.to(f, {
+        x: 'random(-140, 140)', y: 'random(-160, 60)', rotation: 'random(-300, 300)', opacity: 0,
+        duration: 'random(0.8, 1.4)', ease: 'power2.out', onComplete: () => f.remove(),
+      });
+    }
+    gsap.timeline()
+      .set(block, { opacity: 0 })
+      .fromTo(block, { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.7, ease: 'bounce.out', delay: 1.4, clearProps: 'transform' });
+  });
 }
 
 function greetings() {
@@ -196,84 +228,78 @@ function story() {
 
 /* ---------- Stack graph ---------- */
 function stackGraph() {
-  const graph = $('[data-graph]');
-  const svg = document.querySelector<SVGSVGElement>('[data-edges-svg]');
-  if (!graph || !svg) return;
-  const edges: [string, string][] = JSON.parse(graph.dataset.edges ?? '[]');
-  const nodes = new Map($$('[data-node]', graph).map((n) => [n.dataset.node!, n]));
-  const name = $('[data-insp-name]'), detail = $('[data-insp-detail]'), used = $('[data-insp-used]');
-  const NS = 'http://www.w3.org/2000/svg';
+  const sys = $('[data-sys]');
+  if (!sys) return;
+  const nodes = $$('[data-node]', sys);
+  const name = $('[data-insp-name]'), detail = $('[data-insp-detail]'), used = $('[data-insp-used]'), usedK = $('[data-insp-k]');
 
-  const draw = () => {
-    svg.innerHTML = '';
-    const g = graph.getBoundingClientRect();
-    edges.forEach(([a, b], i) => {
-      const A = nodes.get(a)?.getBoundingClientRect(), B = nodes.get(b)?.getBoundingClientRect();
-      if (!A || !B) return;
-      let d: string;
-      if (Math.abs(A.left - B.left) < 10) {
-        const x = A.right - g.left - 8, y1 = A.bottom - g.top, y2 = B.top - g.top;
-        d = `M${x} ${y1} C ${x + 30} ${y1 + 10}, ${x + 30} ${y2 - 10}, ${x} ${y2}`;
-      } else {
-        const x1 = A.right - g.left, y1 = A.top + A.height / 2 - g.top;
-        const x2 = B.left - g.left, y2 = B.top + B.height / 2 - g.top;
-        const mx = (x1 + x2) / 2;
-        d = `M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
-      }
-      for (const cls of ['base', 'flow']) {
-        const p = document.createElementNS(NS, 'path');
-        p.setAttribute('d', d);
-        p.dataset.a = a; p.dataset.b = b;
-        if (cls === 'flow') { p.classList.add('flow'); p.style.animationDelay = `${-(i * 0.37) % 3.2}s`; }
-        svg.append(p);
-      }
+  // Inspector: shows what a skill is and where it was used.
+  const select = (el: HTMLElement) => {
+    nodes.forEach((n) => {
+      n.classList.toggle('is-active', n === el);
+      n.setAttribute('aria-pressed', String(n === el));
     });
+    if (name) name.textContent = el.dataset.name ?? '';
+    if (detail) detail.textContent = el.dataset.detail ?? '';
+    if (usedK) usedK.hidden = false;
+    if (used) used.innerHTML = (JSON.parse(el.dataset.used ?? '[]') as string[]).map((u) => `<span class="chip">${u}</span>`).join('');
+    if (!reduced) gsap.fromTo([name, detail, ...(used ? Array.from(used.children) : [])], { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.45, stagger: 0.04, ease: 'expo.out' });
   };
-  draw();
-  new ResizeObserver(draw).observe(graph);
-
-  const select = (id: string) => {
-    const n = nodes.get(id);
-    if (!n) return;
-    const linked = new Set([id]);
-    edges.forEach(([a, b]) => { if (a === id) linked.add(b); if (b === id) linked.add(a); });
-    nodes.forEach((el, k) => {
-      el.classList.toggle('is-active', k === id);
-      el.classList.toggle('is-dim', !linked.has(k));
-      el.setAttribute('aria-pressed', String(k === id));
-    });
-    svg.querySelectorAll<SVGPathElement>('path').forEach((p) => {
-      const hot = p.dataset.a === id || p.dataset.b === id;
-      p.classList.toggle('is-hot', hot);
-      p.classList.toggle('is-dim', !hot);
-    });
-    if (name) name.textContent = n.dataset.name ?? '';
-    if (detail) detail.textContent = n.dataset.detail ?? '';
-    if (used) used.innerHTML = (JSON.parse(n.dataset.used ?? '[]') as string[]).map((u) => `<span class="chip">${u}</span>`).join('');
-    if (!reduced) gsap.fromTo([name, detail, ...(used ? Array.from(used.children) : [])], { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'expo.out' });
-  };
-  const clear = () => {
-    nodes.forEach((el) => { el.classList.remove('is-dim'); });
-    svg.querySelectorAll('path').forEach((p) => p.classList.remove('is-dim'));
-  };
-  nodes.forEach((el, id) => {
-    el.addEventListener('pointerenter', () => finePointer && select(id));
-    el.addEventListener('focus', () => select(id));
-    el.addEventListener('click', () => select(id));
+  nodes.forEach((el) => {
+    el.addEventListener('pointerenter', () => finePointer && select(el));
+    el.addEventListener('focus', () => select(el));
+    el.addEventListener('click', () => select(el));
   });
-  graph.addEventListener('pointerleave', () => finePointer && clear());
-  if (!reduced) {
-    gsap.from($$('.node', graph), {
-      opacity: 0, scale: 0.85, duration: 0.7, ease: 'back.out(2)', stagger: 0.04, clearProps: 'opacity,transform',
-      scrollTrigger: { trigger: graph, start: 'top 80%' },
+
+  if (reduced) return;
+  gsap.from(nodes, {
+    opacity: 0, y: 10, duration: 0.6, ease: 'expo.out', stagger: 0.03, clearProps: 'opacity,transform',
+    scrollTrigger: { trigger: sys, start: 'top 80%' },
+  });
+
+  // A packet travels down through each layer (request) and back up (response).
+  // Each layer lights up as it passes, and the QA column ticks one bar per layer.
+  const packet = $('[data-packet]', sys);
+  const track = $('.sys__track', sys);
+  const layers = $$('[data-layer]', sys);
+  const ticks = $$('[data-tick]', sys);
+  if (!packet || !track || !layers.length) return;
+  let tl: gsap.core.Timeline | null = null;
+  const build = () => {
+    tl?.kill();
+    layers.forEach((l) => l.classList.remove('is-pass', 'is-ok'));
+    ticks.forEach((t) => t.classList.remove('on'));
+    if (getComputedStyle(track).display === 'none') return;
+    const top = track.getBoundingClientRect().top;
+    const ys = layers.map((l) => { const r = l.getBoundingClientRect(); return r.top + r.height / 2 - top - 7; });
+    tl = gsap.timeline({ repeat: -1, repeatDelay: 1.2, paused: true });
+    const y0 = ($('.sys__tag--in', track)?.offsetHeight ?? 0) + 14;
+    tl.set(packet, { y: y0, opacity: 0 }).call(() => packet.classList.remove('is-back'))
+      .to(packet, { opacity: 1, duration: 0.25 });
+    ys.forEach((y, i) => {
+      tl!.to(packet, { y, duration: 0.6, ease: 'power2.inOut' })
+        .call(() => { layers[i].classList.add('is-pass'); })
+        .to({}, { duration: 0.35 })
+        .call(() => { layers[i].classList.remove('is-pass'); layers[i].classList.add('is-ok'); ticks[i]?.classList.add('on'); });
     });
-  }
+    tl.call(() => packet.classList.add('is-back'))
+      .to(packet, { y: y0, duration: 1.1, ease: 'power2.inOut' })
+      .to(packet, { opacity: 0, duration: 0.3 })
+      .call(() => { layers.forEach((l) => l.classList.remove('is-ok')); ticks.forEach((t) => t.classList.remove('on')); });
+    st.isActive ? tl.play() : tl.pause();
+  };
+  const st = ScrollTrigger.create({ trigger: sys, start: 'top 85%', end: 'bottom 15%', onToggle: (self) => (self.isActive ? tl?.play() : tl?.pause()) });
+  build();
+  let rt = 0;
+  new ResizeObserver(() => { clearTimeout(rt); rt = window.setTimeout(build, 200); }).observe(sys);
 }
 
 /* ---------- Projects ---------- */
 function projects() {
   $$('[data-tilt]').forEach((el) => tilt(el, 6));
-  $$('[data-run]').forEach((btn) => {
+  const runs = new Set<number>();
+  const buttons = $$('[data-run]');
+  buttons.forEach((btn, idx) => {
     const card = btn.closest('.project')!;
     const con = $('[data-console]', card)!;
     const lines: { t: string; s: string }[] = JSON.parse(con.dataset.console ?? '[]');
@@ -296,6 +322,8 @@ function projects() {
       }
       btn.textContent = `↻ ${btn.dataset.rerunLabel}`;
       running = false;
+      runs.add(idx);
+      if (runs.size === buttons.length) unlock('qa');
     });
   });
 }

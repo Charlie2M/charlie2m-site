@@ -1,8 +1,23 @@
 ---
 import Base from '../../layouts/Base.astro';
 import '../../styles/gaming.css';
+import { Image } from 'astro:assets';
 import VoxelArt from '../../components/VoxelArt.astro';
 import { profile } from '../../data/profile';
+import minecraftImg from '../../assets/games/minecraft.webp';
+import valorantImg from '../../assets/games/valorant.webp';
+import lolImg from '../../assets/games/lol.webp';
+import p5rImg from '../../assets/games/p5r.webp';
+import eldenImg from '../../assets/games/elden.webp';
+
+// "cover" fills the card; "figure" and "logo" sit on the card's colour background.
+const art = {
+  minecraft: { src: minecraftImg, fit: 'cover' },
+  valorant: { src: valorantImg, fit: 'figure' },
+  lol: { src: lolImg, fit: 'logo' },
+  p5r: { src: p5rImg, fit: 'logo' },
+  elden: { src: eldenImg, fit: 'cover' },
+} as const;
 import { langPaths, t, type Lang } from '../../i18n';
 
 export const getStaticPaths = langPaths;
@@ -34,7 +49,7 @@ const built = [
           <h1 id="gx-name" class="gx-name" data-split="manual">Charlie2M</h1>
           <span class="gx-full">{profile.fullName}</span>
           <div class="gx-xp" aria-hidden="true">
-            <span class="gx-lv">{g.level}</span>
+            <span class="gx-lv" data-lv>{g.level}</span>
             <span class="gx-xp__bar"><i data-xp></i></span>
           </div>
         </div>
@@ -43,7 +58,7 @@ const built = [
         <dl class="gx-stats" data-g-in>
           <div><dt>{g.statLibrary}</dt><dd><span data-gcount="6">6</span>+</dd></div>
           <div><dt>{g.statFav}</dt><dd>Minecraft</dd></div>
-          <div><dt>{g.statOrigin}</dt><dd>SV ⇄ DE</dd></div>
+          <div><dt>{g.statOrigin}</dt><dd>LATAM</dd></div>
         </dl>
       </section>
 
@@ -72,22 +87,33 @@ const built = [
         </div>
         <ul class="gx-grid" data-grid>
           <li class="gx-card gx-card--sandbox" data-genre="sandbox" data-gtilt>
-            <div class="gx-art art--minecraft" aria-hidden="true"><span>Minecraft</span></div>
+            <div class="gx-art art--minecraft has-img" aria-hidden="true">
+              <Image src={art.minecraft.src} alt="" widths={[400, 700]} sizes="(max-width: 760px) 100vw, 320px" class="gx-img gx-img--cover" />
+            </div>
             <div class="gx-card__body">
               <span class="gx-card__label">Sandbox · ★ {g.favTag}</span>
               <h3>Minecraft</h3>
             </div>
           </li>
-          {g.games.map((game) => (
+          {g.games.map((game) => {
+            const a = art[game.id as keyof typeof art];
+            return (
             <li class="gx-card" data-genre={game.genre} data-gtilt>
-              <div class={`gx-art art--${game.id}`} aria-hidden="true"><span>{game.name}</span></div>
+              <div class:list={['gx-art', `art--${game.id}`, { 'has-img': a }]} aria-hidden="true">
+                {a ? (
+                  <Image src={a.src} alt="" widths={[400, 700]} sizes="(max-width: 760px) 100vw, 320px" class={`gx-img gx-img--${a.fit}`} />
+                ) : (
+                  <span>{game.name}</span>
+                )}
+              </div>
               <div class="gx-card__body">
                 <span class="gx-card__label">{game.label}</span>
                 <h3>{game.name}</h3>
                 <p>{game.body}</p>
               </div>
             </li>
-          ))}
+            );
+          })}
           <li class="gx-card gx-card--more" data-genre="all">
             <div class="gx-card__body">
               <span class="gx-card__label">+</span>
@@ -111,14 +137,10 @@ const built = [
             </a>
           ))}
         </div>
-        <p class="gx-secret">{g.secret} <span class="mono">↑ ↑ ↓ ↓ ← → ← → B A</span></p>
+        <p class="gx-secret">{g.secret}</p>
+        <p class="gx-legal">Game names, logos and artwork belong to their respective owners and are shown here as a fan.</p>
       </section>
     </div>
-  </div>
-
-  <div class="gx-toast" role="status" aria-live="polite" data-toast>
-    <span class="gx-toast__icon" aria-hidden="true">🏆</span>
-    <span>{g.secretFound}</span>
   </div>
 
   <script>

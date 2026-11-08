@@ -32,14 +32,6 @@ export const stackNodes: { id: string; name: string; group: Group; detail: strin
   { id: 'openapi', name: 'OpenAPI', group: 'tools', detail: 'Swagger docs for every API', usedIn: ['StockFlow', 'Game Stats API'] },
 ];
 
-/** Edges of the stack graph (from → to). */
-export const stackEdges: [string, string][] = [
-  ['python', 'fastapi'], ['java', 'spring'], ['ts', 'nest'],
-  ['fastapi', 'postgres'], ['spring', 'postgres'], ['nest', 'postgres'], ['sql', 'postgres'], ['sql', 'oracle'],
-  ['spring', 'tests'], ['oracle', 'qa'], ['qa', 'jira'],
-  ['spring', 'docker'], ['fastapi', 'openapi'], ['spring', 'openapi'], ['docker', 'git'],
-];
-
 export const projects = [
   {
     repo: 'https://github.com/Charlie2M/stockflow',

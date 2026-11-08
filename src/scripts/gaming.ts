@@ -1,5 +1,6 @@
 import { Flip } from 'gsap/Flip';
 import { gsap, ScrollTrigger, reduced, finePointer, revealSplit, tilt } from './core';
+import { unlock } from './achievements';
 
 gsap.registerPlugin(Flip);
 
@@ -12,7 +13,7 @@ export function initGaming() {
   intro();
   feature();
   library();
-  konami();
+  levelUp();
 }
 
 function intro() {
@@ -87,29 +88,25 @@ function library() {
   );
 }
 
-function konami() {
-  const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-  let i = 0;
-  const toast = $('[data-toast]');
-  window.addEventListener('keydown', (e) => {
-    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    i = key === code[i] ? i + 1 : key === code[0] ? 1 : 0;
-    if (i < code.length) return;
-    i = 0;
-    toast?.classList.add('is-on');
-    setTimeout(() => toast?.classList.remove('is-on'), 4200);
-    if (reduced) return;
-    const colors = ['#6fd36b', '#8c6340', '#3aa0ff', '#38e1ff', '#8b5cf6', '#e8d28f'];
-    for (let n = 0; n < 90; n++) {
-      const b = document.createElement('div');
-      b.className = 'confetti';
-      b.style.left = `${Math.random() * 100}vw`;
-      b.style.background = colors[n % colors.length];
-      document.body.append(b);
-      gsap.to(b, {
-        y: innerHeight + 60, x: `random(-120, 120)`, rotation: `random(-360, 360)`,
-        duration: `random(1.6, 3.2)`, delay: Math.random() * 0.6, ease: 'power1.in', onComplete: () => b.remove(),
-      });
-    }
+/** Easter egg: click the level badge 10 times to fill the XP bar and level up. */
+function levelUp() {
+  const lv = $('[data-lv]');
+  const xp = $('[data-xp]');
+  if (!lv || !xp) return;
+  const base = lv.textContent ?? '';
+  let clicks = 0;
+  lv.addEventListener('click', () => {
+    clicks++;
+    const pct = Math.min(100, 64 + clicks * 3.6);
+    gsap.to(xp, { width: `${pct}%`, duration: reduced ? 0 : 0.4, ease: 'power3.out' });
+    if (!reduced) gsap.fromTo(lv, { scale: 1.25 }, { scale: 1, duration: 0.4, ease: 'back.out(3)' });
+    if (clicks < 10) return;
+    clicks = 0;
+    lv.textContent = base.replace(/\d+/, (n) => String(Number(n) + 1));
+    unlock('levelup');
+    setTimeout(() => {
+      lv.textContent = base;
+      gsap.to(xp, { width: '64%', duration: reduced ? 0 : 1, ease: 'expo.out' });
+    }, 5000);
   });
 }

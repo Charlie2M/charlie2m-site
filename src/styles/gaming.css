@@ -118,9 +118,21 @@ body[data-theme='gaming'] {
 .art--genshin { background: linear-gradient(180deg, #6fb7f5 0%, #b8d9f2 50%, #ffd8a8 100%); }
 .art--genshin::before { background: radial-gradient(ellipse 40% 18% at 25% 70%, rgba(255,255,255,.85), transparent 70%), radial-gradient(ellipse 35% 14% at 75% 80%, rgba(255,255,255,.75), transparent 70%); }
 .art--genshin::after { background-image: radial-gradient(circle, rgba(255,255,255,.9) 1px, transparent 1.6px); background-size: 34px 30px; mask-image: linear-gradient(180deg, #000, transparent 50%); }
-.art--p5r { background: #c4001f; }
-.art--p5r::before { background-image: radial-gradient(circle, rgba(0,0,0,.55) 2px, transparent 2.5px); background-size: 10px 10px; mask-image: linear-gradient(110deg, transparent 40%, #000 70%); }
-.art--p5r::after { background: #0b0b0b; clip-path: polygon(0 62%, 100% 30%, 100% 52%, 0 84%); }
+.art--p5r { background: #0b0b0b; }
+.art--p5r::before { background-image: radial-gradient(circle, rgba(196,0,31,.55) 2px, transparent 2.5px); background-size: 10px 10px; mask-image: linear-gradient(110deg, transparent 30%, #000 75%); }
+.art--p5r::after { background: #c4001f; clip-path: polygon(0 72%, 100% 44%, 100% 56%, 0 84%); opacity: 0.85; }
+
+/* Game images on top of the colour backgrounds */
+.gx-art.has-img::before, .gx-art.has-img::after { z-index: 0; }
+.gx-img { position: absolute; z-index: 1; transition: transform 0.8s var(--ease); pointer-events: none; }
+.gx-img--cover { inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.art--minecraft .gx-img--cover { object-position: 50% 35%; }
+.art--elden .gx-img--cover { object-position: 50% 42%; }
+.gx-img--figure { right: 8%; top: 5%; height: 130%; width: auto; filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.6)); }
+.gx-img--logo { inset: 14% 12%; width: 76%; height: 72%; object-fit: contain; filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.55)); }
+.gx-card:hover .gx-img--cover { transform: scale(1.07); }
+.gx-card:hover .gx-img--figure { transform: translateY(-6%) scale(1.04); }
+.gx-card:hover .gx-img--logo { transform: scale(1.08) rotate(-2deg); }
 .art--elden { background: radial-gradient(circle at 50% 100%, #2a2214, #0a0906 65%); }
 .art--elden::before { background: radial-gradient(circle at 50% 105%, transparent 46%, rgba(230, 196, 120, 0.9) 47%, transparent 48.5%), radial-gradient(circle at 50% 105%, transparent 58%, rgba(230, 196, 120, 0.5) 58.6%, transparent 59.6%); }
 .art--elden::after { background: radial-gradient(circle at 50% 100%, rgba(255, 214, 140, 0.35), transparent 45%); }
@@ -136,16 +148,8 @@ body[data-theme='gaming'] {
 .gx-build h3 { font-size: 28px; }
 .gx-build p { color: var(--muted); }
 .gx-secret { margin-top: 30px; font-size: 13px; color: var(--dim); }
+.gx-legal { font-size: 12px; color: var(--dim); opacity: 0.8; }
+.gx-lv { cursor: pointer; user-select: none; }
 @media (max-width: 760px) { .gx-built__grid { grid-template-columns: 1fr; } }
-
-/* Achievement toast + confetti */
-.gx-toast {
-  position: fixed; left: 50%; bottom: 28px; z-index: 120; display: flex; gap: 14px; align-items: center;
-  padding: 14px 22px; background: var(--surface-2); border: 1px solid var(--accent); font-family: var(--font-display); font-weight: 500;
-  clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); transform: translate(-50%, 160%); transition: transform 0.6s var(--ease);
-}
-.gx-toast.is-on { transform: translate(-50%, 0); }
-.gx-toast__icon { font-size: 22px; }
-.confetti { position: fixed; top: -20px; width: 10px; height: 10px; z-index: 110; pointer-events: none; }
 
 .js-anim [data-g-in] { opacity: 0; }

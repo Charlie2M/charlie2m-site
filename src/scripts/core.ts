@@ -21,10 +21,7 @@ export function initCore() {
   nav();
   progress();
   if (!reduced) {
-    if (finePointer) {
-      cursor();
-      $$('[data-magnetic]').forEach(magnetic);
-    }
+    if (finePointer) $$('[data-magnetic]').forEach(magnetic);
     $$('[data-split]').forEach(splitText);
     autoSplits();
     reveals();
@@ -82,21 +79,6 @@ function progress() {
   const bar = document.querySelector('.progress');
   if (!bar) return;
   gsap.to(bar, { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: reduced ? true : 0.3 } });
-}
-
-/* ---------- Cursor ---------- */
-function cursor() {
-  const c = document.querySelector<HTMLElement>('.cursor');
-  if (!c) return;
-  const x = gsap.quickTo(c, 'x', { duration: 0.35, ease: 'power3' });
-  const y = gsap.quickTo(c, 'y', { duration: 0.35, ease: 'power3' });
-  window.addEventListener('pointermove', (e) => { x(e.clientX); y(e.clientY); }, { passive: true });
-  document.addEventListener('pointerover', (e) => {
-    const hit = (e.target as Element).closest('a, button, input, textarea, [data-hover], .node');
-    c.classList.toggle('is-hover', !!hit);
-  });
-  document.addEventListener('pointerleave', () => gsap.to(c, { opacity: 0 }));
-  document.addEventListener('pointerenter', () => gsap.to(c, { opacity: 1 }));
 }
 
 /* ---------- Magnetic ---------- */

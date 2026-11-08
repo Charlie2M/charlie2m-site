@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import Achievements from '../components/Achievements.astro';
 import { languages, pathFor, t, type Lang, type Page } from '../i18n';
 
 interface Props {
@@ -53,7 +54,6 @@ const canonical = new URL(pathFor(lang, page), site).href;
   <body data-theme={theme} data-page={page}>
     <a class="skip" href="#main">Skip to content</a>
     <div class="progress" aria-hidden="true"></div>
-    <div class="cursor" aria-hidden="true"><div class="cursor__dot"></div></div>
     <div class="grain" aria-hidden="true"></div>
     <slot name="before" />
     <Nav lang={lang} page={page} />
@@ -61,9 +61,12 @@ const canonical = new URL(pathFor(lang, page), site).href;
       <slot />
     </main>
     <Footer lang={lang} />
+    <Achievements lang={lang} />
     <script>
       import { initCore } from '../scripts/core';
+      import { initAchievements } from '../scripts/achievements';
       initCore();
+      initAchievements();
     </script>
   </body>
 </html>
