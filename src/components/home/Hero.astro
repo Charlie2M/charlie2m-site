@@ -1,0 +1,35 @@
+---
+import VoxelArt from '../VoxelArt.astro';
+import { profile } from '../../data/profile';
+import { t, type Lang } from '../../i18n';
+const d = t(Astro.props.lang as Lang);
+---
+
+<section class="hero" id="top" aria-labelledby="hero-name">
+  <canvas class="hero__bg" data-packets aria-hidden="true"></canvas>
+  <div class="hero__fade"></div>
+  <div class="wrap hero__grid">
+    <div class="hero__text">
+      <div data-hero-in><span class="chip"><span class="dot"></span>{d.hero.status}</span></div>
+      <p class="hero__hello" aria-hidden="true"><span data-greeting data-words={JSON.stringify(profile.greetings)}>{profile.greetings[0]}</span>,</p>
+      <h1 class="hero__name" id="hero-name" data-split="manual">Charlie<span class="accent">2M</span></h1>
+      <p class="hero__full" data-hero-in>{profile.fullName} · {d.hero.eyebrow}</p>
+      <p class="hero__tag" data-hero-in>{d.hero.tagline}</p>
+      <div class="hero__ctas" data-hero-in>
+        <a class="btn btn--primary" href="#hire" data-magnetic>{d.hero.ctaHire} <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href="#projects" data-magnetic>{d.hero.ctaWork}</a>
+      </div>
+    </div>
+    <div class="hero__art voxel-hit" data-avatar data-hero-in>
+      <div class="voxel-float">
+        <VoxelArt mode="avatar" label="Charlie2M voxel mark: a cube with its missing piece floating above" />
+      </div>
+    </div>
+  </div>
+  <div class="hero__foot">
+    <div class="wrap">
+      <span>⌖ {d.hero.location}</span>
+      <span class="scroll-cue">{d.hero.scroll}<i></i></span>
+    </div>
+  </div>
+</section>

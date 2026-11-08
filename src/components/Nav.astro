@@ -1,0 +1,44 @@
+---
+import VoxelArt from './VoxelArt.astro';
+import { languages, pathFor, t, type Lang, type Page } from '../i18n';
+interface Props { lang: Lang; page: Page }
+const { lang, page } = Astro.props;
+const d = t(lang);
+const links = [
+  { href: pathFor(lang, 'home', '#projects'), label: d.nav.work, current: false },
+  { href: pathFor(lang, 'home', '#story'), label: d.nav.story, current: false },
+  { href: pathFor(lang, 'gaming'), label: d.nav.gaming, current: page === 'gaming' },
+  { href: pathFor(lang, 'future'), label: d.nav.future, current: page === 'future' },
+];
+---
+
+<header class="nav" data-nav>
+  <div class="wrap">
+    <div class="nav__bar">
+      <a class="brand" href={pathFor(lang, 'home')} aria-label="Charlie2M, home">
+        <span class="brand__mark"><VoxelArt mode="mark" /></span>
+        <span>Charlie2M</span>
+      </a>
+      <ul class="nav__links">
+        {links.map((l) => (
+          <li><a href={l.href} aria-current={l.current ? 'page' : undefined} data-hover>{l.label}</a></li>
+        ))}
+      </ul>
+      <div class="nav__right">
+        <nav class="lang" aria-label={d.nav.language}>
+          {(Object.keys(languages) as Lang[]).map((l) => (
+            <a href={pathFor(l, page)} hreflang={l} lang={l} aria-current={l === lang ? 'true' : undefined} title={languages[l]} data-hover>
+              {l.toUpperCase()}
+            </a>
+          ))}
+        </nav>
+        <a class="btn btn--primary btn--sm" href={pathFor(lang, 'home', '#hire')} data-magnetic>{d.nav.hire}</a>
+        <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-panel" data-nav-toggle>{d.nav.menu}</button>
+      </div>
+    </div>
+    <div class="nav__panel" id="nav-panel">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+      <a href={pathFor(lang, 'home', '#hire')}>{d.nav.hire}</a>
+    </div>
+  </div>
+</header>

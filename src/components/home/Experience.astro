@@ -1,0 +1,39 @@
+---
+import { t, type Lang } from '../../i18n';
+const d = t(Astro.props.lang as Lang);
+const n = d.experience.items.length;
+---
+
+<section class="section" id="experience" aria-labelledby="exp-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="endpoint" data-reveal><span class="verb">GET</span>/experience</span>
+      <h2 class="sec-title" id="exp-title" data-split>{d.experience.title}</h2>
+      <p class="sec-lead" data-reveal>{d.experience.lead}</p>
+    </div>
+    <ol class="log" style="list-style: none; margin: 0; padding: 0">
+      {d.experience.items.map((e, i) => (
+        <li class:list={['log__item', { 'is-open': i === 0 }]} data-log>
+          <button class="log__head" type="button" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`exp-${i}`}>
+            <span class="log__status pass" data-status>[PASS]</span>
+            <span>
+              <span class="log__role">{e.role}</span>
+              <span class="log__org">{e.org}</span>
+            </span>
+            <span class="log__date">{e.date}<span class="log__plus" aria-hidden="true">+</span></span>
+          </button>
+          <div class="log__body" id={`exp-${i}`}>
+            <div><ul>{e.points.map((p) => <li>{p}</li>)}</ul></div>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="log__summary" data-reveal>
+      <span>Tests: <b>{n} passed</b>, 0 failed</span><span>Time: 2022 → 2026</span>
+    </p>
+    <div class="edu" data-reveal>
+      <span class="edu__icon">{d.experience.education}</span>
+      <div><strong>{d.experience.degree}</strong><span>{d.experience.school}</span></div>
+    </div>
+  </div>
+</section>

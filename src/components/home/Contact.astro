@@ -1,0 +1,54 @@
+---
+import { profile } from '../../data/profile';
+import { t, type Lang } from '../../i18n';
+const d = t(Astro.props.lang as Lang);
+---
+
+<section class="section" id="hire" aria-labelledby="hire-title">
+  <div class="wrap contact__grid">
+    <div>
+      <div class="sec-head" style="margin-bottom: 0">
+        <span class="endpoint" data-reveal><span class="verb">POST</span>/hire</span>
+        <h2 class="sec-title" id="hire-title" data-split>{d.contact.title}</h2>
+        <p class="sec-lead" data-reveal>{d.contact.lead}</p>
+      </div>
+      <div class="contact__links">
+        <span class="graph__label" data-reveal>{d.contact.or}</span>
+        <a href={`mailto:${profile.email}`} data-reveal>{profile.email} <small>EMAIL ↗</small></a>
+        <a href={profile.linkedin} target="_blank" rel="noopener" data-reveal>in/carlosmadridmata <small>LINKEDIN ↗</small></a>
+        <a href={profile.github} target="_blank" rel="noopener" data-reveal>Charlie2M <small>GITHUB ↗</small></a>
+        <a href={profile.cv} download data-reveal>{d.contact.cv} <small>PDF ↓</small></a>
+      </div>
+    </div>
+    <form
+      class="req"
+      novalidate
+      data-hire-form
+      data-email={profile.email}
+      data-subject={d.contact.subject}
+      data-reveal
+    >
+      <div class="req__top"><b>POST</b> /hire HTTP/2<br />Content-Type: application/json<br /><br />{'{'}</div>
+      <div class="req__field">
+        <label for="f-name">"{d.contact.name.toLowerCase()}":</label>
+        <input id="f-name" name="name" autocomplete="name" placeholder={d.contact.namePh} />
+        <span class="req__err" data-err="name" data-msg={d.contact.errName} aria-live="polite"></span>
+      </div>
+      <div class="req__field">
+        <label for="f-email">"{d.contact.email.toLowerCase()}":</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" placeholder={d.contact.emailPh} />
+        <span class="req__err" data-err="email" data-msg={d.contact.errEmail} aria-live="polite"></span>
+      </div>
+      <div class="req__field">
+        <label for="f-msg">"{d.contact.message.toLowerCase()}":</label>
+        <textarea id="f-msg" name="message" rows="5" placeholder={d.contact.messagePh}></textarea>
+        <span class="req__err" data-err="message" data-msg={d.contact.errMessage} aria-live="polite"></span>
+      </div>
+      <div class="req__top" style="margin: 8px 0 0">{'}'}</div>
+      <div class="req__actions">
+        <button class="btn btn--primary" type="submit" data-magnetic>{d.contact.send} <span class="arrow" aria-hidden="true">→</span></button>
+        <span class="req__res" data-res data-msg={`201 Created · ${d.contact.sent}`} aria-live="polite"></span>
+      </div>
+    </form>
+  </div>
+</section>

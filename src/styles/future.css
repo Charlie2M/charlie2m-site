@@ -1,0 +1,35 @@
+/* Future page: blueprint look */
+.bp-grid {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    linear-gradient(rgba(108, 184, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(108, 184, 255, 0.05) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 85%);
+}
+.bp-head { padding-top: clamp(140px, 18vw, 200px); display: grid; gap: 18px; }
+.bp-title { font-size: clamp(52px, 10vw, 140px); letter-spacing: -0.045em; line-height: 0.9; }
+.bp-flow { width: 100%; height: 70px; margin-top: 30px; overflow: visible; }
+.bp-flow path { fill: none; stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.bp-flow circle { fill: var(--bg); stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.bp-flow text { font-family: var(--font-mono); font-size: 13px; fill: var(--muted); }
+.bp-board { perspective: 1200px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding: 50px 0 40px; align-items: start; }
+.bp-lane { display: grid; gap: 14px; }
+.bp-lane__title { font-family: var(--font-mono); font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px dashed var(--line-2); }
+.bp-lane__title small { margin-left: auto; color: var(--dim); }
+.bp-lane__dot { width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--accent); }
+[data-lane='building'] .bp-lane__dot { background: var(--accent); animation: ping 2s infinite; }
+[data-lane='shipped'] .bp-lane__dot { background: var(--accent-2); border-color: var(--accent-2); }
+.bp-card {
+  position: relative; display: grid; gap: 10px; justify-items: start; padding: 22px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent); border: 1px solid var(--line-2);
+  backdrop-filter: blur(4px); transition: border-color 0.3s, translate 0.4s var(--ease);
+}
+.bp-card:hover { border-color: var(--accent); translate: 0 -4px; }
+.bp-card h3 { font-size: 24px; }
+.bp-card p { color: var(--muted); font-size: 15.5px; }
+.bp-sketch { width: 56px; height: 56px; fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+[data-lane='idea'] .bp-card { border-style: dashed; }
+.bp-corner { position: absolute; top: -1px; right: -1px; width: 14px; height: 14px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+.bp-follow { padding: 30px 0 120px; display: flex; justify-content: center; }
+@media (max-width: 900px) { .bp-board { grid-template-columns: 1fr; } }

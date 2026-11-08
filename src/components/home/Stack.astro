@@ -1,0 +1,66 @@
+---
+import { stackNodes, stackEdges, type Group } from '../../data/profile';
+import { t, type Lang } from '../../i18n';
+const d = t(Astro.props.lang as Lang);
+const groups: Group[] = ['lang', 'fw', 'data', 'qa', 'tools'];
+---
+
+<section class="section" id="stack" aria-labelledby="stack-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="endpoint" data-reveal><span class="verb">GET</span>/stack</span>
+      <h2 class="sec-title" id="stack-title" data-split>{d.stack.title}</h2>
+      <p class="sec-lead" data-reveal>{d.stack.lead}</p>
+    </div>
+    <div class="stack__grid">
+      <div class="graph" data-graph data-edges={JSON.stringify(stackEdges)} data-reveal>
+        <div class="graph__bg"></div>
+        <svg class="edges" aria-hidden="true" data-edges-svg></svg>
+        <div class="graph__cols">
+          {groups.map((g) => (
+            <div class="graph__col">
+              <span class="graph__label">{d.stack.groups[g]}</span>
+              <div class="graph__nodes">
+              {stackNodes.filter((n) => n.group === g).map((n) => (
+                <button
+                  class="node"
+                  type="button"
+                  data-node={n.id}
+                  data-name={n.name}
+                  data-detail={n.detail}
+                  data-used={JSON.stringify(n.usedIn)}
+                  aria-pressed="false"
+                >
+                  {n.name}
+                </button>
+              ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <aside class="inspector">
+        <div class="panel" aria-live="polite" data-reveal>
+          <div class="inspector__name" data-insp-name>{d.stack.hint}</div>
+          <div class="inspector__detail" data-insp-detail>—</div>
+          <div class="inspector__k">{d.stack.usedIn}</div>
+          <div class="inspector__used" data-insp-used><span class="chip">—</span></div>
+        </div>
+        <div class="panel" data-reveal>
+          <div class="graph__label">{d.stack.humanTitle}</div>
+          <div class="langs">
+            {d.stack.human.map((h) => (
+              <div class="langs__row">
+                <span>{h.name}</span>
+                <small>{h.level}</small>
+                <span class="langs__bar" aria-hidden="true">
+                  {[1, 2, 3, 4, 5].map((i) => <i class:list={{ on: i <= h.value }} />)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

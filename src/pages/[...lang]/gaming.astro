@@ -1,0 +1,130 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/gaming.css';
+import VoxelArt from '../../components/VoxelArt.astro';
+import { profile } from '../../data/profile';
+import { langPaths, t, type Lang } from '../../i18n';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const d = t(lang);
+const g = d.gaming;
+const filters = Object.entries(g.filters) as [string, string][];
+const built = [
+  { name: d.projects.items[1].name, body: d.projects.items[1].body, stack: d.projects.items[1].stack, href: 'https://github.com/Charlie2M/game-stats-api' },
+  { name: d.projects.items[2].name, body: d.projects.items[2].body, stack: d.projects.items[2].stack, href: 'https://github.com/Charlie2M/lfgbot' },
+];
+---
+
+<Base lang={lang} page="gaming" title={d.meta.gamingTitle} description={g.intro} theme="gaming">
+  <div class="gx">
+    <aside class="gx-rail" aria-label="Sections">
+      <a href="#profile" data-hover title={g.eyebrow}><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg></a>
+      <a href="#library" data-hover title={g.libraryTitle}><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></a>
+      <a href="#built" data-hover title={g.builtTitle}><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5" /></svg></a>
+    </aside>
+
+    <div class="gx-main wrap">
+      <!-- Player banner -->
+      <section class="gx-banner" id="profile" aria-labelledby="gx-name">
+        <div class="gx-banner__bg" aria-hidden="true"></div>
+        <div class="gx-avatar" data-g-in><VoxelArt mode="mark" /></div>
+        <div class="gx-id" data-g-in>
+          <span class="gx-eyebrow">{g.eyebrow}</span>
+          <h1 id="gx-name" class="gx-name" data-split="manual">Charlie2M</h1>
+          <span class="gx-full">{profile.fullName}</span>
+          <div class="gx-xp" aria-hidden="true">
+            <span class="gx-lv">{g.level}</span>
+            <span class="gx-xp__bar"><i data-xp></i></span>
+          </div>
+        </div>
+        <div class="gx-status" data-g-in><span class="dot"></span>{g.online}</div>
+        <p class="gx-intro" data-g-in>{g.intro}</p>
+        <dl class="gx-stats" data-g-in>
+          <div><dt>{g.statLibrary}</dt><dd><span data-gcount="6">6</span>+</dd></div>
+          <div><dt>{g.statFav}</dt><dd>Minecraft</dd></div>
+          <div><dt>{g.statOrigin}</dt><dd>SV ⇄ DE</dd></div>
+        </dl>
+      </section>
+
+      <!-- Featured -->
+      <section class="gx-feature" aria-labelledby="gx-fav" data-feature data-reveal>
+        <div class="gx-feature__text">
+          <span class="gx-tag">★ {g.favTag}</span>
+          <h2 id="gx-fav" class="gx-feature__title">Minecraft</h2>
+          <p>{g.favBody}</p>
+          <span class="chip">Sandbox · Survival · Creative</span>
+        </div>
+        <div class="gx-feature__art" data-terrain>
+          <VoxelArt mode="terrain" label="Original voxel landscape with a small tree" />
+        </div>
+      </section>
+
+      <!-- Library -->
+      <section class="gx-library" id="library" aria-labelledby="gx-lib">
+        <div class="gx-lib-head">
+          <h2 id="gx-lib" class="gx-h2" data-split>{g.libraryTitle}</h2>
+          <div class="gx-filters" role="group" aria-label={g.libraryTitle} data-filters>
+            {filters.map(([k, label], i) => (
+              <button type="button" class="gx-filter" data-filter={k} aria-pressed={i === 0 ? 'true' : 'false'}>{label}</button>
+            ))}
+          </div>
+        </div>
+        <ul class="gx-grid" data-grid>
+          <li class="gx-card gx-card--sandbox" data-genre="sandbox" data-gtilt>
+            <div class="gx-art art--minecraft" aria-hidden="true"><span>Minecraft</span></div>
+            <div class="gx-card__body">
+              <span class="gx-card__label">Sandbox · ★ {g.favTag}</span>
+              <h3>Minecraft</h3>
+            </div>
+          </li>
+          {g.games.map((game) => (
+            <li class="gx-card" data-genre={game.genre} data-gtilt>
+              <div class={`gx-art art--${game.id}`} aria-hidden="true"><span>{game.name}</span></div>
+              <div class="gx-card__body">
+                <span class="gx-card__label">{game.label}</span>
+                <h3>{game.name}</h3>
+                <p>{game.body}</p>
+              </div>
+            </li>
+          ))}
+          <li class="gx-card gx-card--more" data-genre="all">
+            <div class="gx-card__body">
+              <span class="gx-card__label">+</span>
+              <h3>{g.more}</h3>
+              <p>{g.moreBody}</p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Built for gamers -->
+      <section class="gx-built" id="built" aria-labelledby="gx-built">
+        <h2 id="gx-built" class="gx-h2" data-split>{g.builtTitle}</h2>
+        <p class="sec-lead" data-reveal>{g.builtLead}</p>
+        <div class="gx-built__grid">
+          {built.map((b) => (
+            <a class="gx-build" href={b.href} target="_blank" rel="noopener" data-reveal>
+              <span class="gx-card__label">{b.stack}</span>
+              <h3>{b.name} <span aria-hidden="true">↗</span></h3>
+              <p>{b.body}</p>
+            </a>
+          ))}
+        </div>
+        <p class="gx-secret">{g.secret} <span class="mono">↑ ↑ ↓ ↓ ← → ← → B A</span></p>
+      </section>
+    </div>
+  </div>
+
+  <div class="gx-toast" role="status" aria-live="polite" data-toast>
+    <span class="gx-toast__icon" aria-hidden="true">🏆</span>
+    <span>{g.secretFound}</span>
+  </div>
+
+  <script>
+    import { initCore } from '../../scripts/core';
+    import { initGaming } from '../../scripts/gaming';
+    initCore();
+    initGaming();
+  </script>
+</Base>

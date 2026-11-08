@@ -1,0 +1,99 @@
+---
+/**
+ * Original isometric voxel art, rendered to static SVG at build time.
+ * mode "avatar": a 3×3×3 cube with its front corner floating above (the brand mark).
+ * mode "terrain": a small voxel landscape for the gaming page.
+ * mode "mark": tiny 2×2×2 logo cube.
+ */
+interface Props {
+  mode: 'avatar' | 'terrain' | 'mark';
+  class?: string;
+  label?: string;
+}
+const { mode, class: cls = '', label } = Astro.props;
+
+type V = { x: number; y: number; z: number; k: string };
+const vox: V[] = [];
+
+if (mode === 'avatar' || mode === 'mark') {
+  const n = mode === 'mark' ? 2 : 3;
+  const accents: Record<string, string> =
+    mode === 'mark' ? { '1,1,1': 'a', '0,1,0': 'b' } : { '2,0,0': 'a', '0,2,1': 'b', '1,2,0': 'a', '2,1,1': 'b' };
+  for (let x = 0; x < n; x++)
+    for (let y = 0; y < n; y++)
+      for (let z = 0; z < n; z++) {
+        const key = `${x},${y},${z}`;
+        if (mode === 'avatar' && key === '2,2,2') continue; // the floating piece
+        vox.push({ x, y, z, k: accents[key] ?? '' });
+      }
+  if (mode === 'avatar') vox.push({ x: 2, y: 2, z: 3.7, k: 'a float' });
+} else {
+  const W = 11, D = 11;
+  const h = (x: number, y: number) =>
+    Math.max(1, Math.min(5, Math.round(2.4 + 1.3 * Math.sin(x * 0.75 + 0.4) + 1.1 * Math.cos(y * 0.62 - 0.3) + 0.5 * Math.sin((x + y) * 0.9))));
+  const water = 1;
+  for (let x = 0; x < W; x++)
+    for (let y = 0; y < D; y++) {
+      const top = h(x, y);
+      for (let z = 0; z < top; z++) {
+        let k = z === top - 1 ? (top <= 2 ? 'sand' : 'grass') : z < top - 2 ? 'stone' : 'dirt';
+        if (top <= water && z === top - 1) k = 'water';
+        vox.push({ x, y, z, k });
+      }
+    }
+  // a little tree
+  const tx = 7, ty = 3, base = h(tx, ty);
+  for (let z = base; z < base + 3; z++) vox.push({ x: tx, y: ty, z, k: 'wood' });
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) vox.push({ x: tx + dx, y: ty + dy, z: base + 3, k: 'leaf' });
+  vox.push({ x: tx, y: ty, z: base + 4, k: 'leaf' });
+}
+
+const filled = new Set(vox.map((v) => `${v.x},${v.y},${v.z}`));
+const S = mode === 'terrain' ? 16 : mode === 'mark' ? 10 : 34;
+const C = 0.866;
+const P = (x: number, y: number, z: number) => [(x - y) * S * C, (x + y) * S * 0.5 - z * S] as const;
+const pts = (a: (readonly [number, number])[]) => a.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+
+const center = vox.reduce((acc, v) => [acc[0] + v.x, acc[1] + v.y, acc[2] + v.z], [0, 0, 0]).map((s) => s / vox.length);
+const [cx, cy] = P(center[0] + 0.5, center[1] + 0.5, center[2] + 0.5);
+
+let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+const items = vox
+  .slice()
+  .sort((a, b) => a.x + a.y + a.z - (b.x + b.y + b.z) || a.z - b.z)
+  .map((v, i) => {
+    const { x, y, z } = v;
+    const isFloat = v.k.includes('float');
+    const showTop = isFloat || !filled.has(`${x},${y},${z + 1}`);
+    const showRight = isFloat || !filled.has(`${x + 1},${y},${z}`);
+    const showLeft = isFloat || !filled.has(`${x},${y + 1},${z}`);
+    const faces: string[] = [];
+    const top = [P(x, y, z + 1), P(x + 1, y, z + 1), P(x + 1, y + 1, z + 1), P(x, y + 1, z + 1)];
+    const left = [P(x, y + 1, z), P(x + 1, y + 1, z), P(x + 1, y + 1, z + 1), P(x, y + 1, z + 1)];
+    const right = [P(x + 1, y, z), P(x + 1, y + 1, z), P(x + 1, y + 1, z + 1), P(x + 1, y, z + 1)];
+    for (const p of [...top, ...left, ...right]) {
+      minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]);
+      minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]);
+    }
+    if (showLeft) faces.push(`<polygon class="f-left" points="${pts(left)}"/>`);
+    if (showRight) faces.push(`<polygon class="f-right" points="${pts(right)}"/>`);
+    if (showTop) faces.push(`<polygon class="f-top" points="${pts(top)}"/>`);
+    if (!faces.length) return '';
+    const [vx, vy] = P(x + 0.5, y + 0.5, z + 0.5);
+    const kinds = v.k.split(' ').filter(Boolean).map((k) => (k === 'float' ? 'is-float' : `k-${k}`)).join(' ');
+    return `<g class="vx ${kinds}" style="--i:${i};--ex:${(vx - cx).toFixed(0)};--ey:${(vy - cy).toFixed(0)}">${faces.join('')}</g>`;
+  })
+  .join('');
+
+const pad = 6;
+const viewBox = `${(minX - pad).toFixed(0)} ${(minY - pad).toFixed(0)} ${(maxX - minX + pad * 2).toFixed(0)} ${(maxY - minY + pad * 2).toFixed(0)}`;
+---
+
+<svg
+  class:list={['voxel', `voxel--${mode}`, cls]}
+  viewBox={viewBox}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  set:html={items}
+/>

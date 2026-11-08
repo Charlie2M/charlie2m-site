@@ -1,0 +1,69 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { languages, pathFor, t, type Lang, type Page } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  page: Page;
+  title: string;
+  description: string;
+  theme?: 'home' | 'gaming' | 'future';
+}
+const { lang, page, title, description, theme = 'home' } = Astro.props;
+const d = t(lang);
+const site = Astro.site ?? new URL('https://charlie2m.dev');
+const canonical = new URL(pathFor(lang, page), site).href;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#07080c" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+    {(Object.keys(languages) as Lang[]).map((l) => (
+      <link rel="alternate" hreflang={l} href={new URL(pathFor(l, page), site).href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(pathFor('en', page), site).href} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script is:inline>
+      // Hide animated elements until the motion script takes over.
+      // If it never does (error, slow network), show everything after 3s.
+      (function () {
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce) return;
+        var el = document.documentElement;
+        el.classList.add('js-anim');
+        setTimeout(function () {
+          if (!window.__motionReady) el.classList.remove('js-anim');
+        }, 3000);
+      })();
+    </script>
+  </head>
+  <body data-theme={theme} data-page={page}>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="progress" aria-hidden="true"></div>
+    <div class="cursor" aria-hidden="true"><div class="cursor__dot"></div></div>
+    <div class="grain" aria-hidden="true"></div>
+    <slot name="before" />
+    <Nav lang={lang} page={page} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <script>
+      import { initCore } from '../scripts/core';
+      initCore();
+    </script>
+  </body>
+</html>

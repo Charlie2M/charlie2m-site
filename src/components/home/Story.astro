@@ -1,0 +1,33 @@
+---
+import { t, type Lang } from '../../i18n';
+const d = t(Astro.props.lang as Lang);
+---
+
+<section class="section story" id="story" aria-labelledby="story-title">
+  <div class="wrap sec-head">
+    <span class="endpoint" data-reveal><span class="verb">GET</span>/story</span>
+    <h2 class="sec-title" id="story-title" data-split>{d.story.title}</h2>
+    <p class="sec-lead" data-reveal>{d.story.lead}</p>
+  </div>
+  <div class="story__pin" data-story-pin>
+    <div class="wrap story__flight" aria-hidden="true">
+      <svg viewBox="0 0 1000 90" preserveAspectRatio="none">
+        <path class="route" d="M20 70 C 300 -10, 700 -10, 980 60" />
+        <path class="route-live" data-route d="M20 70 C 300 -10, 700 -10, 980 60" />
+        <g class="pin"><circle cx="20" cy="70" r="5" /><text x="34" y="86">SV · San Salvador</text></g>
+        <g class="pin"><circle cx="980" cy="60" r="5" /><text x="980" y="86" text-anchor="end">DE · Germany</text></g>
+        <text data-plane x="0" y="0" font-size="22" fill="currentColor" style="color: var(--accent)">✈</text>
+      </svg>
+    </div>
+    <div class="story__track" data-story-track>
+      {d.story.chapters.map((c, i) => (
+        <article class:list={['chapter', { 'chapter--quote': i === 3 }]} data-chapter>
+          <span class="chapter__tag">{c.tag}</span>
+          <h3>{c.title}</h3>
+          <p>{c.body}</p>
+          <span class="chapter__num" aria-hidden="true">0{i + 1}</span>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

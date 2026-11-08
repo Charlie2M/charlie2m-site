@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import Loader from '../../components/home/Loader.astro';
+import Hero from '../../components/home/Hero.astro';
+import Story from '../../components/home/Story.astro';
+import Stack from '../../components/home/Stack.astro';
+import Projects from '../../components/home/Projects.astro';
+import Experience from '../../components/home/Experience.astro';
+import Rates from '../../components/home/Rates.astro';
+import Contact from '../../components/home/Contact.astro';
+import { langPaths, t, type Lang } from '../../i18n';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const d = t(lang);
+---
+
+<Base lang={lang} page="home" title={d.meta.title} description={d.meta.description}>
+  <Loader slot="before" lang={lang} />
+  <Hero lang={lang} />
+  <Story lang={lang} />
+  <Stack lang={lang} />
+  <Projects lang={lang} />
+  <Experience lang={lang} />
+  <Rates lang={lang} />
+  <Contact lang={lang} />
+  <script>
+    import { initCore } from '../../scripts/core';
+    import { initHome } from '../../scripts/home';
+    initCore();
+    initHome();
+  </script>
+</Base>

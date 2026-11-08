@@ -1,0 +1,22 @@
+---
+import { profile } from '../data/profile';
+import { t, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const d = t(Astro.props.lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__big" aria-hidden="true">Charlie2M</div>
+    <div class="footer__row">
+      <span>© {year} {profile.fullName}. {d.footer.built}</span>
+      <nav aria-label="Social">
+        <a href={profile.github} target="_blank" rel="noopener">GitHub</a>
+        <a href={profile.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+        <a href={`mailto:${profile.email}`}>Email</a>
+        <a href="#main" data-to-top>{d.footer.top} ↑</a>
+      </nav>
+    </div>
+  </div>
+</footer>

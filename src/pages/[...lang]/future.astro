@@ -1,0 +1,71 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/future.css';
+import { profile } from '../../data/profile';
+import { langPaths, t, type Lang } from '../../i18n';
+
+export const getStaticPaths = langPaths;
+const { lang } = Astro.props as { lang: Lang };
+const d = t(lang);
+const f = d.future;
+const lanes = ['idea', 'building', 'shipped'] as const;
+
+// Simple line sketches, drawn on scroll. Same order as f.items.
+const sketches = [
+  '<path d="M32 6 56 19v26L32 58 8 45V19Z"/><path d="M8 19l24 13 24-13M32 32v26"/><path d="M20 12.5 44 25.5M44 12.5 20 25.5" opacity=".4"/>',
+  '<rect x="8" y="12" width="48" height="42" rx="4"/><path d="M8 24h48M20 6v12M44 6v12"/><path d="M18 34h8M30 34h8M42 34h4M18 44h8M30 44h8"/>',
+  '<rect x="6" y="10" width="52" height="44" rx="4"/><path d="M6 20h52"/><circle cx="12" cy="15" r="1.5"/><circle cx="18" cy="15" r="1.5"/><path d="M14 30h20M14 38h30M14 46h14"/>',
+  '<path d="M8 22 32 10l24 12v24L32 58 8 46Z"/><path d="M8 22l24 12 24-12M32 34v24"/><path d="M20 16l24 12" />',
+  '<path d="M8 56h48"/><path d="M14 56V36M26 56V24M38 56V30M50 56V14"/><path d="M14 30l12-12 12 6 12-14"/>',
+  '<path d="M8 12h40a6 6 0 0 1 6 6v20a6 6 0 0 1-6 6H26l-12 10V44H8z"/><path d="M18 24h28M18 32h18"/>',
+];
+---
+
+<Base lang={lang} page="future" title={d.meta.futureTitle} description={f.intro} theme="future">
+  <div class="bp-grid" aria-hidden="true"></div>
+  <section class="bp-head wrap">
+    <span class="endpoint" data-reveal><span class="verb">GET</span>{f.eyebrow}</span>
+    <h1 class="bp-title" data-split="manual">{f.title}</h1>
+    <p class="sec-lead" data-reveal>{f.intro}</p>
+    <svg class="bp-flow" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
+      <path data-draw d="M10 30 H 980" />
+      <path data-draw d="M965 18 L 985 30 L 965 42" />
+      {lanes.map((l, i) => (
+        <g>
+          <circle cx={10 + i * 485} cy="30" r="6" data-dot />
+          <text x={10 + i * 485} y="58" text-anchor={i === 0 ? 'start' : i === 2 ? 'end' : 'middle'}>{f.lanes[l]}</text>
+        </g>
+      ))}
+    </svg>
+  </section>
+
+  <section class="bp-board wrap" aria-label={f.title}>
+    {lanes.map((lane) => (
+      <div class="bp-lane" data-lane={lane}>
+        <h2 class="bp-lane__title"><span class="bp-lane__dot" />{f.lanes[lane]} <small>{f.items.filter((i) => i.lane === lane).length}</small></h2>
+        {f.items.map((item, idx) =>
+          item.lane === lane ? (
+            <article class="bp-card" data-bp-card>
+              <svg class="bp-sketch" viewBox="0 0 64 64" aria-hidden="true" set:html={sketches[idx]} />
+              <h3>{item.name}</h3>
+              <p>{item.body}</p>
+              <span class="chip">{item.stack}</span>
+              <span class="bp-corner" aria-hidden="true" />
+            </article>
+          ) : null,
+        )}
+      </div>
+    ))}
+  </section>
+
+  <section class="wrap bp-follow">
+    <a class="btn btn--primary" href={profile.github} target="_blank" rel="noopener" data-magnetic>{f.follow} <span class="arrow" aria-hidden="true">→</span></a>
+  </section>
+
+  <script>
+    import { initCore } from '../../scripts/core';
+    import { initFuture } from '../../scripts/future';
+    initCore();
+    initFuture();
+  </script>
+</Base>

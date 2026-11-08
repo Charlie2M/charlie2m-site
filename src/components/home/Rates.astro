@@ -1,0 +1,47 @@
+---
+import { profile } from '../../data/profile';
+import { t, type Lang } from '../../i18n';
+const d = t(Astro.props.lang as Lang);
+---
+
+<section class="section" id="rates" aria-labelledby="rates-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="endpoint" data-reveal><span class="verb">GET</span>/rates</span>
+      <h2 class="sec-title" id="rates-title" data-split>{d.rates.title}</h2>
+      <p class="sec-lead" data-reveal>{d.rates.lead}</p>
+    </div>
+    <div class="rates__grid">
+      <div class="rate-hero" data-reveal>
+        <div>
+          <div class="rate-num" aria-label={`$${profile.rateMin}–${profile.rateMax} ${d.rates.unit}`}>
+            <span class="cur" aria-hidden="true">$</span><span data-count={profile.rateMin} aria-hidden="true">{profile.rateMin}</span><span aria-hidden="true">–</span><span data-count={profile.rateMax} aria-hidden="true">{profile.rateMax}</span>
+          </div>
+          <div class="rate-unit">{d.rates.unit}</div>
+        </div>
+        <p class="rate-note">{d.rates.note}</p>
+      </div>
+      <div class="services">
+        <div class="graph__label" data-reveal>{d.rates.servicesTitle}</div>
+        {d.rates.services.map((s, i) => (
+          <div class="service" data-reveal>
+            <span class="service__n">0{i + 1}</span>
+            <h3>{s.name}</h3>
+            <p>{s.body}</p>
+          </div>
+        ))}
+      </div>
+      <div class="estimator" data-estimator data-min={profile.rateMin} data-max={profile.rateMax} data-reveal>
+        <div>
+          <label for="est-hours"><span>{d.rates.estTitle} · {d.rates.estHours}</span><span data-est-hours>40 h</span></label>
+          <input id="est-hours" type="range" min="5" max="200" step="5" value="40" />
+        </div>
+        <div>
+          <div class="graph__label">{d.rates.estRange}</div>
+          <output for="est-hours" data-est-out>${(40 * profile.rateMin).toLocaleString('en-US')} – ${(40 * profile.rateMax).toLocaleString('en-US')}</output>
+        </div>
+        <small>{d.rates.estNote}</small>
+      </div>
+    </div>
+  </div>
+</section>

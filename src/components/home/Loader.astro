@@ -1,0 +1,23 @@
+---
+import { t, type Lang } from '../../i18n';
+const d = t(Astro.props.lang as Lang);
+---
+
+<div class="loader" data-loader aria-hidden="true">
+  <div class="loader__box">
+    <div class="loader__line"><span class="prompt">$ </span><span data-loader-cmd data-text={d.loader.cmd}></span><span class="caret" data-loader-caret></span></div>
+    <div class="loader__line"><span class="loader__ok" data-loader-ok data-text={`HTTP/2 ${d.loader.ok}`}></span></div>
+    <div class="loader__line"><span style="color: var(--muted)" data-loader-ready data-text={`→ ${d.loader.ready}: Charlie2M`}></span></div>
+    <div class="loader__bar"><i data-loader-bar></i></div>
+  </div>
+</div>
+<script is:inline>
+  (function () {
+    var l = document.querySelector('[data-loader]');
+    var seen = false;
+    try { seen = sessionStorage.getItem('c2m-boot') === '1'; } catch (e) {}
+    if (seen || window.matchMedia('(prefers-reduced-motion: reduce)').matches) l.hidden = true;
+    // Never let the loader trap the page if scripts fail.
+    setTimeout(function () { if (!window.__motionReady) l.hidden = true; }, 3000);
+  })();
+</script>
